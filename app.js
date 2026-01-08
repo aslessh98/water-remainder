@@ -35,7 +35,7 @@ logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async (user) => {
   const userInfo = document.getElementById("user-info");
 
   if (user) {
