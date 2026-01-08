@@ -2,11 +2,11 @@ importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "AIzaSyAJ5asDzJczWNgtwK75hvEIeVDL0RC-HM8",
-  authDomain: "gym-tracker-3584f.firebaseapp.com",
-  projectId: "gym-tracker-3584f",
-  messagingSenderId: "1028526681982",
-  appId: "1:1028526681982:web:fa82ebc92005591b060d2f"
+  apiKey: "AIzaSyAP5QK1TWxCLt3Nh4ck_KsS8wIjWv-80tU",
+  authDomain: "water-remainder-967ec.firebaseapp.com",
+  projectId: "water-remainder-967ec",
+  messagingSenderId: "1092309949188",
+  appId: "1:1092309949188:web:b2585c5b44ffa5415ace51"
 });
 
 
