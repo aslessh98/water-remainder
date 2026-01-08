@@ -41,7 +41,7 @@ window.addEventListener("firebase-ready", async () => {
   if ("serviceWorker" in navigator) {
     try {
       swRegistration = await navigator.serviceWorker.register(
-        "./firebase-messaging-sw.js"
+        "firebase-messaging-sw.js"
       );
       pushStatus("Service worker registered");
       swReadyResolve();
