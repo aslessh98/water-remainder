@@ -1,12 +1,8 @@
-import { db, auth } from './firebase.js';
-
 import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
-  signInWithRedirect, 
-  getRedirectResult
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -27,7 +23,7 @@ const DAILY_GOAL = 3;
 
 loginBtn.onclick = async () => {
   try {
-    await signInWithRedirect(auth, provider);
+    await signInWithPopup(auth, provider);
   } catch (err) {
     alert(err.message);
   }
@@ -36,10 +32,6 @@ loginBtn.onclick = async () => {
 logoutBtn.onclick = async () => {
   await signOut(auth);
 };
-
-getRedirectResult(auth).catch(err => {
-  console.error("Redirect error:", err);
-});
 
 onAuthStateChanged(auth, user => {
   const userInfo = document.getElementById("user-info");
@@ -54,6 +46,8 @@ onAuthStateChanged(auth, user => {
     userInfo.style.display = "none";
   }
 });
+
+//import { db, auth } from './firebase.js';
 
 // ---------- DATE UTILS ----------
 function formatDate(d) {
