@@ -7,10 +7,21 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+import {
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const provider = new GoogleAuthProvider();
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const calendar = document.getElementById("calendar");
+
+const DAILY_GOAL = 3;
+
+// ---------- AUTH ----------
 
 loginBtn.onclick = async () => {
   try {
@@ -38,40 +49,49 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-const calendar = document.getElementById('calendar');
-const goal = 3;
-
+// ---------- DATE UTILS ----------
 function formatDate(d) {
-  return d.toISOString().split('T')[0];
+  return d.toISOString().split("T")[0];
 }
 
-async function loadDays() {
-  const uid = auth.currentUser.uid;
+// ---------- LOAD CALENDAR ----------
+async function loadCalendar(user) {
+  calendar.innerHTML = ""; // clear on re-login
 
   for (let i = 0; i < 14; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    const id = formatDate(date);
+    const dayId = formatDate(date);
 
-    const ref = doc(db, 'users', uid, 'dailyLogs', id);
+    const ref = doc(db, "users", user.uid, "dailyLogs", dayId);
     const snap = await getDoc(ref);
 
-    let litres = snap.exists() ? snap.data().litres : 0;
-    const completed = litres >= goal;
+    const litres = snap.exists() ? snap.data().litres : 0;
+    const completed = litres >= DAILY_GOAL;
 
-    const div = document.createElement('div');
-    div.className = `day ${completed ? 'success' : 'fail'} ${i === 0 ? 'today' : ''}`;
-    div.innerHTML = `<b>${id}</b><br>${litres} / 3 L`;
+    const div = document.createElement("div");
+    div.className = `day ${completed ? "success" : "fail"} ${i === 0 ? "today" : ""}`;
+
+    div.innerHTML = `
+      <b>${dayId}</b><br>
+      ${litres} / ${DAILY_GOAL} L
+    `;
 
     if (i === 0) {
-      const controls = document.createElement('div');
-      controls.className = 'controls';
+      const controls = document.createElement("div");
+      controls.className = "controls";
+
       controls.innerHTML = `
-        <button onclick="update(${litres + 1})">+</button>
-        <button onclick="update(${litres - 1})">-</button>
+        <button id="plus">+</button>
+        <button id="minus">−</button>
       `;
+
+      controls.querySelector("#plus").onclick = () =>
+        updateLitres(user, litres + 1);
+
+      controls.querySelector("#minus").onclick = () =>
+        updateLitres(user, litres - 1);
+
       div.appendChild(controls);
     }
 
@@ -79,18 +99,22 @@ async function loadDays() {
   }
 }
 
-window.update = async function (litres) {
+// ---------- UPDATE TODAY ----------
+async function updateLitres(user, litres) {
   litres = Math.max(0, litres);
-  const uid = auth.currentUser.uid;
+
   const today = formatDate(new Date());
 
-  await setDoc(doc(db, 'users', uid, 'dailyLogs', today), {
-    litres,
-    goal,
-    completed: litres >= goal
-  });
+  await setDoc(
+    doc(db, "users", user.uid, "dailyLogs", today),
+    {
+      litres,
+      goal: DAILY_GOAL,
+      completed: litres >= DAILY_GOAL,
+      email: user.email
+    },
+    { merge: true }
+  );
 
-  location.reload();
-};
-
-loadDays();
+  loadCalendar(user);
+}
