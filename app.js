@@ -1,3 +1,7 @@
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("firebase-messaging-sw.js");
+}
+
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -6,12 +10,33 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
+  getToken
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+import {
   doc,
   setDoc,
   getDoc,
   getDocs,
   collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+async function requestNotificationPermission() {
+  if (!("Notification" in window)) return;
+
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return;
+
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: "BCW7rT82NeEEpbKYcCfB5ZM94sUxorwMqyzaIiCzx9taA9L8mGucHOGW41O2qMPzO37Hw__2x_DHWuk4CMX_2Yk"
+    });
+
+    console.log("FCM Token:", token);
+  } catch (err) {
+    console.error("FCM token error", err);
+  }
+}
 
 const provider = new GoogleAuthProvider();
 
@@ -43,6 +68,9 @@ onAuthStateChanged(auth, async (user) => {
 
     loginBtn.style.display = "none";
     userInfo.style.display = "inline-flex";
+
+    // 🔔 Request notification permission AFTER login
+    await requestNotificationPermission();
 
     const todayId = formatDate(new Date());
     const todayRef = doc(db, "users", user.uid, "dailyLogs", todayId);
