@@ -49,7 +49,7 @@ window.addEventListener("firebase-ready", async () => {
 
 async function requestNotificationPermission() {
   try {
-    pushStatus("Requesting permission");
+    pushStatus("Requesting permission...");
 
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
@@ -58,6 +58,11 @@ async function requestNotificationPermission() {
     }
 
     pushStatus("Permission granted");
+
+    if (!swRegistration) {
+      pushStatus("ERROR: Service worker not ready");
+      return;
+    }
 
     const token = await getToken(messaging, {
       vapidKey: "BCW7rT82NeEEpbKYcCfB5ZM94sUxorwMqyzaIiCzx9taA9L8mGucHOGW41O2qMPzO37Hw__2x_DHWuk4CMX_2Yk",
@@ -70,7 +75,14 @@ async function requestNotificationPermission() {
     }
 
     pushStatus("Token generated");
-
+    const tokenRef = doc(db, "users", auth.currentUser.uid, "fcmTokens", token);
+    await setDoc(tokenRef, {
+      token,
+      createdAt: new Date(),
+      userAgent: navigator.userAgent
+    });
+    
+    /*
     const user = auth.currentUser;
     if (!user) {
       pushStatus("User not logged in");
@@ -83,7 +95,7 @@ async function requestNotificationPermission() {
         createdAt: new Date(),
         platform: "web"
       }
-    );
+    );*/
 
     pushStatus("Token saved to Firestore");
 
