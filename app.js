@@ -1,5 +1,17 @@
+function pushStatus(msg) {
+  document.getElementById("pushStatus").textContent =
+    "Push status: " + msg;
+}
+
+let swRegistration = null;
+
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("firebase-messaging-sw.js");
+  swRegistration = await navigator.serviceWorker.register(
+    "/water-reminder/firebase-messaging-sw.js"
+  );
+  pushStatus("Service worker registered");
+  
+  //navigator.serviceWorker.register("firebase-messaging-sw.js");
 }
 
 import {
@@ -21,7 +33,53 @@ import {
   collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+async function requestNotificationPermission() {
+  try {
+    pushStatus("Requesting permission");
 
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      pushStatus("Permission denied");
+      return;
+    }
+
+    pushStatus("Permission granted");
+
+    const token = await getToken(messaging, {
+      vapidKey: "BCW7rT82NeEEpbKYcCfB5ZM94sUxorwMqyzaIiCzx9taA9L8mGucHOGW41O2qMPzO37Hw__2x_DHWuk4CMX_2Yk",
+      serviceWorkerRegistration: swRegistration
+    });
+
+    if (!token) {
+      pushStatus("Token NOT generated");
+      return;
+    }
+
+    pushStatus("Token generated");
+
+    const user = auth.currentUser;
+    if (!user) {
+      pushStatus("User not logged in");
+      return;
+    }
+
+    await setDoc(
+      doc(db, "users", user.uid, "fcmTokens", token),
+      {
+        createdAt: new Date(),
+        platform: "web"
+      }
+    );
+
+    pushStatus("Token saved to Firestore");
+
+    document.getElementById("enablePushBtn").style.display = "none";
+
+  } catch (err) {
+    pushStatus("ERROR: " + err.message);
+  }
+}
+/*
 async function requestNotificationPermission() {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return;
@@ -41,7 +99,7 @@ async function requestNotificationPermission() {
     }
   );
 }
-
+*/
 /*async function requestNotificationPermission() {
   if (!("Notification" in window)) return;
 
