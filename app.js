@@ -34,24 +34,28 @@ if ("serviceWorker" in navigator) {
 }
 */
 window.addEventListener("firebase-ready", async () => {
-  pushStatus("Checking if Service worker in navigator");
-  if ("serviceWorker" in navigator) {
-    try {
-      pushStatus("Service worker registeration started");
-      
-      swRegistration = await navigator.serviceWorker.register(
-        "./firebase-messaging-sw.js",
-        {
-          scope: "./"
-        }
+  pushStatus("Checking service worker support");
 
-      );
-      pushStatus("Service worker registered");
-      
-    } catch (err) {
-      pushStatus("SW registration failed");
-      console.error(err);
-    }
+  if (!("serviceWorker" in navigator)) {
+    pushStatus("Service worker NOT supported");
+    return;
+  }
+
+  try {
+    pushStatus("Service worker registration started");
+
+    swRegistration = await navigator.serviceWorker.register(
+      "/water-remainder/firebase-messaging-sw.js",
+      {
+        scope: "/water-remainder/"
+      }
+    );
+
+    pushStatus("Service worker registered");
+
+  } catch (err) {
+    pushStatus("SW registration failed");
+    console.error(err);
   }
 });
 
@@ -59,8 +63,11 @@ async function requestNotificationPermission() {
   try {
     pushStatus("Waiting for service worker...");
 
-    const readyRegistration = await navigator.serviceWorker.ready;
-    swRegistration = readyRegistration;
+    if (!navigator.serviceWorker.controller) {
+      pushStatus("Reloading to activate service worker...");
+      location.reload();
+      return;
+    }
     
     pushStatus("Service worker active");
     
@@ -74,14 +81,11 @@ async function requestNotificationPermission() {
 
     pushStatus("Permission granted");
 
-    if (!swRegistration) {
-      pushStatus("ERROR: Service worker not ready");
-      return;
-    }
+    const registration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging, {
       vapidKey: "BCW7rT82NeEEpbKYcCfB5ZM94sUxorwMqyzaIiCzx9taA9L8mGucHOGW41O2qMPzO37Hw__2x_DHWuk4CMX_2Yk",
-      serviceWorkerRegistration: swRegistration
+      serviceWorkerRegistration: registration
     });
 
     if (!token) {
@@ -118,6 +122,7 @@ async function requestNotificationPermission() {
 
   } catch (err) {
     pushStatus("ERROR: " + err.message);
+    
   }
 }
 /*
