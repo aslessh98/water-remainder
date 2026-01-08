@@ -5,15 +5,6 @@ function pushStatus(msg) {
 
 let swRegistration = null;
 
-if ("serviceWorker" in navigator) {
-  swRegistration = await navigator.serviceWorker.register(
-    "/water-reminder/firebase-messaging-sw.js"
-  );
-  pushStatus("Service worker registered");
-  
-  //navigator.serviceWorker.register("firebase-messaging-sw.js");
-}
-
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -32,6 +23,29 @@ import {
   getDocs,
   collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/*
+if ("serviceWorker" in navigator) {
+  swRegistration = await navigator.serviceWorker.register(
+    "/water-reminder/firebase-messaging-sw.js"
+  );
+  pushStatus("Service worker registered");
+  
+  //navigator.serviceWorker.register("firebase-messaging-sw.js");
+}
+*/
+window.addEventListener("firebase-ready", async () => {
+  if ("serviceWorker" in navigator) {
+    try {
+      swRegistration = await navigator.serviceWorker.register(
+        "/water-reminder/firebase-messaging-sw.js"
+      );
+      pushStatus("Service worker registered");
+    } catch (err) {
+      pushStatus("SW registration failed");
+      console.error(err);
+    }
+  }
+});
 
 async function requestNotificationPermission() {
   try {
@@ -156,9 +170,6 @@ onAuthStateChanged(auth, async (user) => {
     loginBtn.style.display = "none";
     userInfo.style.display = "inline-flex";
     enablePushBtn.style.display = "inline-flex";
-
-    // 🔔 Request notification permission AFTER login
-    await requestNotificationPermission();
 
     const todayId = formatDate(new Date());
     const todayRef = doc(db, "users", user.uid, "dailyLogs", todayId);
