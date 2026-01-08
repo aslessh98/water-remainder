@@ -34,6 +34,7 @@ if ("serviceWorker" in navigator) {
 }
 
 */
+/*
 window.addEventListener("firebase-ready", async () => {
   pushStatus("Checking if Service worker in navigator");
   if ("serviceWorker" in navigator) {
@@ -55,6 +56,7 @@ window.addEventListener("firebase-ready", async () => {
     }
   }
 });
+*/
 /*
 window.addEventListener("firebase-ready", async () => {
   pushStatus("Checking service worker support");
@@ -87,8 +89,35 @@ async function requestNotificationPermission() {
   try {
     pushStatus("Waiting for service worker...");
 
-    const readyRegistration = await navigator.serviceWorker.ready;
-    swRegistration = readyRegistration;
+    pushStatus("Checking if Service worker in navigator");
+    if ("serviceWorker" in navigator) {
+      
+      pushStatus("serviceWorker in navigator");
+      
+      try {
+        
+        pushStatus("Service worker registeration started");
+        
+        swRegistration = await navigator.serviceWorker.register(
+          "./firebase-messaging-sw.js",
+          {
+            scope: "./"
+          }
+  
+        );
+        
+        pushStatus("Service worker registered");
+        
+      } catch (err) {
+        
+        pushStatus("SW registration failed");
+        
+        console.error(err);
+      }
+    }
+
+    //const readyRegistration = await navigator.serviceWorker.ready;
+    //swRegistration = readyRegistration;
     
     pushStatus("Service worker active");
     
