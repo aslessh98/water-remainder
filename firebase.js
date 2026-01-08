@@ -18,4 +18,4 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
 
-signInAnonymously(auth);
+//signInAnonymously(auth);
