@@ -10,7 +10,7 @@ const firebaseConfig = {
   projectId: "water-remainder-967ec",
   storageBucket: "water-remainder-967ec.firebasestorage.app",
   messagingSenderId: "1092309949188",
-  appId: "1:1092309949188:web:4002d54ccd98e4a85ace51"
+  appId: "1:1092309949188:web:b2585c5b44ffa5415ace51"
 };
 
 const app = initializeApp(firebaseConfig);
