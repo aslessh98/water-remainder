@@ -4,10 +4,6 @@ function pushStatus(msg) {
 }
 
 let swRegistration = null;
-let swReadyResolve;
-const swReady = new Promise(resolve => {
-  swReadyResolve = resolve;
-});
 
 import {
   GoogleAuthProvider,
@@ -38,14 +34,20 @@ if ("serviceWorker" in navigator) {
 }
 */
 window.addEventListener("firebase-ready", async () => {
+  pushStatus("Checking if Service worker in navigator");
   if ("serviceWorker" in navigator) {
     try {
+      pushStatus("Service worker registeration started");
+      
       swRegistration = await navigator.serviceWorker.register(
-        "firebase-messaging-sw.js"
+        "./firebase-messaging-sw.js",
+        {
+          scope: "./"
+        }
+
       );
       pushStatus("Service worker registered");
-      swReadyResolve();
-      pushStatus("Service worker resolved");
+      
     } catch (err) {
       pushStatus("SW registration failed");
       console.error(err);
@@ -57,7 +59,10 @@ async function requestNotificationPermission() {
   try {
     pushStatus("Waiting for service worker...");
 
-    await swReady;
+    const readyRegistration = await navigator.serviceWorker.ready;
+    swRegistration = readyRegistration;
+    
+    pushStatus("Service worker active");
     
     pushStatus("Requesting permission...");
 
