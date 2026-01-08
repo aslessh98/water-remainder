@@ -88,11 +88,30 @@ async function loadCalendar(user) {
     div.className = `day ${completed ? "success" : "fail"} ${i === 0 ? "today" : ""}`;
 
     div.innerHTML = `
-      <b>${displayDate}</b><br>
-      ${litres} / ${DAILY_GOAL} L
+      <div class="day-left">
+        <div class="day-date">${displayDate}</div>
+        <div class="day-value">${litres} / ${DAILY_GOAL} L</div>
+      </div>
+    
+      <div class="day-right"></div>
     `;
 
     if (i === 0) {
+      const right = div.querySelector(".day-right");
+    
+      const plusBtn = document.createElement("button");
+      plusBtn.className = "circle-btn";
+      plusBtn.textContent = "+";
+      plusBtn.onclick = () => updateLitres(user, litres + 1);
+    
+      const minusBtn = document.createElement("button");
+      minusBtn.className = "circle-btn";
+      minusBtn.textContent = "−";
+      minusBtn.onclick = () => updateLitres(user, litres - 1);
+    
+      right.appendChild(plusBtn);
+      right.appendChild(minusBtn);
+      /*
       const controls = document.createElement("div");
       controls.className = "controls";
 
@@ -106,7 +125,7 @@ async function loadCalendar(user) {
 
       controls.appendChild(plusBtn);
       controls.appendChild(minusBtn);
-      div.appendChild(controls);
+      div.appendChild(controls);*/
     }
 
     // THIS keeps today on TOP
