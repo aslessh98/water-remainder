@@ -321,6 +321,15 @@ onAuthStateChanged(auth, async (user) => {
       });
     }
 
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        //lastReminderDate: null
+      },
+      { merge: true }
+    );
+
     loadCalendar(user);
     
   } else {
