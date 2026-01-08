@@ -32,7 +32,30 @@ if ("serviceWorker" in navigator) {
   
   //navigator.serviceWorker.register("firebase-messaging-sw.js");
 }
+
 */
+window.addEventListener("firebase-ready", async () => {
+  pushStatus("Checking if Service worker in navigator");
+  if ("serviceWorker" in navigator) {
+    try {
+      pushStatus("Service worker registeration started");
+      
+      swRegistration = await navigator.serviceWorker.register(
+        "./firebase-messaging-sw.js",
+        {
+          scope: "./"
+        }
+
+      );
+      pushStatus("Service worker registered");
+      
+    } catch (err) {
+      pushStatus("SW registration failed");
+      console.error(err);
+    }
+  }
+});
+/*
 window.addEventListener("firebase-ready", async () => {
   pushStatus("Checking service worker support");
 
@@ -58,7 +81,74 @@ window.addEventListener("firebase-ready", async () => {
     console.error(err);
   }
 });
+*/
 
+async function requestNotificationPermission() {
+  try {
+    pushStatus("Waiting for service worker...");
+
+    const readyRegistration = await navigator.serviceWorker.ready;
+    swRegistration = readyRegistration;
+    
+    pushStatus("Service worker active");
+    
+    pushStatus("Requesting permission...");
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      pushStatus("Permission denied");
+      return;
+    }
+
+    pushStatus("Permission granted");
+
+    if (!swRegistration) {
+      pushStatus("ERROR: Service worker not ready");
+      return;
+    }
+
+    const token = await getToken(messaging, {
+      vapidKey: "KEY",
+      serviceWorkerRegistration: swRegistration
+    });
+
+    if (!token) {
+      pushStatus("Token NOT generated");
+      return;
+    }
+
+    pushStatus("Token generated");
+    const tokenRef = doc(db, "users", auth.currentUser.uid, "fcmTokens", token);
+    await setDoc(tokenRef, {
+      token,
+      createdAt: new Date(),
+      userAgent: navigator.userAgent
+    });
+    
+    /*
+    const user = auth.currentUser;
+    if (!user) {
+      pushStatus("User not logged in");
+      return;
+    }
+
+    await setDoc(
+      doc(db, "users", user.uid, "fcmTokens", token),
+      {
+        createdAt: new Date(),
+        platform: "web"
+      }
+    );*/
+
+    pushStatus("Token saved to Firestore");
+
+    document.getElementById("enablePushBtn").style.display = "none";
+
+  } catch (err) {
+    pushStatus("ERROR: " + err.message);
+  }
+}
+/*
 async function requestNotificationPermission() {
   try {
     pushStatus("Waiting for service worker...");
@@ -101,21 +191,6 @@ async function requestNotificationPermission() {
       userAgent: navigator.userAgent
     });
     
-    /*
-    const user = auth.currentUser;
-    if (!user) {
-      pushStatus("User not logged in");
-      return;
-    }
-
-    await setDoc(
-      doc(db, "users", user.uid, "fcmTokens", token),
-      {
-        createdAt: new Date(),
-        platform: "web"
-      }
-    );*/
-
     pushStatus("Token saved to Firestore");
 
     document.getElementById("enablePushBtn").style.display = "none";
@@ -125,6 +200,7 @@ async function requestNotificationPermission() {
     
   }
 }
+*/
 /*
 async function requestNotificationPermission() {
   const permission = await Notification.requestPermission();
