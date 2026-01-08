@@ -21,7 +21,28 @@ import {
   collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
 async function requestNotificationPermission() {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return;
+
+  const token = await getToken(messaging, {
+    vapidKey: "BCW7rT82NeEEpbKYcCfB5ZM94sUxorwMqyzaIiCzx9taA9L8mGucHOGW41O2qMPzO37Hw__2x_DHWuk4CMX_2Yk"
+  });
+
+  const user = auth.currentUser;
+  if (!user || !token) return;
+
+  await setDoc(
+    doc(db, "users", user.uid, "fcmTokens", token),
+    {
+      createdAt: new Date(),
+      platform: "web"
+    }
+  );
+}
+
+/*async function requestNotificationPermission() {
   if (!("Notification" in window)) return;
 
   const permission = await Notification.requestPermission();
@@ -36,7 +57,7 @@ async function requestNotificationPermission() {
   } catch (err) {
     console.error("FCM token error", err);
   }
-}
+}*/
 
 const provider = new GoogleAuthProvider();
 
