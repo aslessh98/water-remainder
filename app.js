@@ -4,7 +4,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithRedirect, 
+  getRedirectResult
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -25,7 +27,7 @@ const DAILY_GOAL = 3;
 
 loginBtn.onclick = async () => {
   try {
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } catch (err) {
     alert(err.message);
   }
@@ -34,6 +36,10 @@ loginBtn.onclick = async () => {
 logoutBtn.onclick = async () => {
   await signOut(auth);
 };
+
+getRedirectResult(auth).catch(err => {
+  console.error("Redirect error:", err);
+});
 
 onAuthStateChanged(auth, user => {
   const userInfo = document.getElementById("user-info");
