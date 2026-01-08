@@ -16,7 +16,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const messaging = getMessaging(app);
+
+let messaging = null;
+
+if ("serviceWorker" in navigator) {
+  messaging = getMessaging(app);
+}
+
+//const messaging = getMessaging(app);
 
 // Expose globally so app.js can use them 
 window.firebaseApp = app; 
