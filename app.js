@@ -8,7 +8,9 @@ import {
 import {
   doc,
   setDoc,
-  getDoc
+  getDoc,
+  getDocs,
+  collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const provider = new GoogleAuthProvider();
@@ -42,6 +44,19 @@ onAuthStateChanged(auth, user => {
     loginBtn.style.display = "none";
     userInfo.style.display = "inline-flex";
 
+    const todayId = formatDate(new Date());
+    const todayRef = doc(db, "users", user.uid, "dailyLogs", todayId);
+    
+    const todaySnap = await getDoc(todayRef);
+    if (!todaySnap.exists()) {
+      await setDoc(todayRef, {
+        litres: 0,
+        goal: DAILY_GOAL,
+        completed: false,
+        createdAt: new Date()
+      });
+    }
+
     loadCalendar(user);
     
   } else {
@@ -69,6 +84,65 @@ function formatDisplayDate(date) {
 
 // ---------- LOAD CALENDAR ----------
 async function loadCalendar(user) {
+  calendar.innerHTML = "";
+
+  const logsRef = collection(db, "users", user.uid, "dailyLogs");
+  const snapshot = await getDocs(logsRef);
+
+  if (snapshot.empty) {
+    calendar.innerHTML = `<p style="opacity:0.7">No data yet. Start drinking 💧</p>`;
+    return;
+  }
+
+  // Collect & sort by date DESC (latest first)
+  const days = snapshot.docs
+    .map(docSnap => ({
+      id: docSnap.id,            // YYYY-MM-DD
+      ...docSnap.data()
+    }))
+    .sort((a, b) => b.id.localeCompare(a.id));
+
+  const todayId = formatDate(new Date());
+
+  for (const day of days) {
+    const dateObj = new Date(day.id);
+    const displayDate = formatDisplayDate(dateObj);
+
+    const div = document.createElement("div");
+    div.className = `day ${day.completed ? "success" : "fail"} ${
+      day.id === todayId ? "today" : ""
+    }`;
+
+    div.innerHTML = `
+      <div class="day-left">
+        <div class="day-date">${displayDate}</div>
+        <div class="day-value">${day.litres} / ${day.goal} L</div>
+      </div>
+      <div class="day-right"></div>
+    `;
+
+    // Only TODAY gets controls
+    if (day.id === todayId) {
+      const right = div.querySelector(".day-right");
+
+      const plusBtn = document.createElement("button");
+      plusBtn.className = "circle-btn";
+      plusBtn.textContent = "+";
+      plusBtn.onclick = () => updateLitres(user, day.litres + 1);
+
+      const minusBtn = document.createElement("button");
+      minusBtn.className = "circle-btn";
+      minusBtn.textContent = "−";
+      minusBtn.onclick = () => updateLitres(user, day.litres - 1);
+
+      right.appendChild(plusBtn);
+      right.appendChild(minusBtn);
+    }
+
+    calendar.appendChild(div);
+  }
+}
+/*async function loadCalendar(user) {
   calendar.innerHTML = "";
 
   for (let i = 0; i < 14; i++) {
@@ -125,13 +199,13 @@ async function loadCalendar(user) {
 
       controls.appendChild(plusBtn);
       controls.appendChild(minusBtn);
-      div.appendChild(controls);*/
+      div.appendChild(controls);*
     }
 
     // THIS keeps today on TOP
     calendar.appendChild(div);
   }
-}
+}*/
 
 // ---------- UPDATE TODAY ----------
 async function updateLitres(user, litres) {
