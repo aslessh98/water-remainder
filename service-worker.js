@@ -1,7 +1,7 @@
 self.addEventListener('push', e => {
-const data = e.data.json();
-self.registration.showNotification(data.title, {
-body: data.body,
-icon: '/icons/icon-192.png'
-});
+  const data = e.data.json();
+  self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: 'icon-192.png'
+  });
 });
