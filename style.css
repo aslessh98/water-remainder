@@ -45,9 +45,23 @@ h1 {
 /*.success { background: #14532d; }
 .fail { background: #7f1d1d; }*/
 
-.success { background: linear-gradient(180deg, #e6f9e6, #d4f7d4) !important; border: 1px solid rgba(34,197,94,0.08); }
-.fail { background: linear-gradient(180deg, #fff1f0, #fbe4e1) !important; border: 1px solid rgba(239,68,68,0.06); }
-.today { border: 2px solid #38bdf8; }
+/* Success */
+.success {
+  background: linear-gradient(180deg, #a7f3d0, #6ee7b7);
+  border: 1px solid rgba(16,185,129,0.22);
+}
+
+/* Fail */
+.fail {
+  background: linear-gradient(180deg, #fecaca, #fda4af);
+  border: 1px solid rgba(239,68,68,0.22);
+}
+.today {
+  border: 2px solid #38bdf8;
+  box-shadow:
+    0 0 0 2px rgba(56,189,248,0.6),
+    0 10px 30px rgba(56,189,248,0.35);
+}
 
 .controls {
   display: flex;
@@ -59,6 +73,67 @@ button {
   font-size: 20px;
   padding: 6px 14px;
   border-radius: 8px;
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+}
+
+/* Left side (date + litres) */
+.day-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.day-date {
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.day-value {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Right side (+ / − buttons) */
+.day-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Circular buttons */
+.circle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.9);
+  color: #0b1220;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.circle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+}
+
+.circle-btn:active {
+  transform: scale(0.95);
+}
+
+.day:not(.today) .day-right {
+  opacity: 0.4;
 }
 
 /* --- Auth UI --- */
