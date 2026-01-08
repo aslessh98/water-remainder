@@ -46,7 +46,13 @@ const calendar = document.getElementById("calendar");
 
 const DAILY_GOAL = 3;
 
+const enablePushBtn = document.getElementById("enablePushBtn");
+
 // ---------- AUTH ----------
+enablePushBtn.onclick = async () => {
+  await requestNotificationPermission();
+  enablePushBtn.style.display = "none";
+};
 
 loginBtn.onclick = async () => {
   try {
@@ -60,6 +66,8 @@ logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
+
+
 onAuthStateChanged(auth, async (user) => {
   const userInfo = document.getElementById("user-info");
 
@@ -68,6 +76,7 @@ onAuthStateChanged(auth, async (user) => {
 
     loginBtn.style.display = "none";
     userInfo.style.display = "inline-flex";
+    enablePushBtn.style.display = "inline-flex";
 
     // 🔔 Request notification permission AFTER login
     await requestNotificationPermission();
