@@ -57,16 +57,28 @@ function formatDate(d) {
   return d.toISOString().split("T")[0];
 }
 
+function formatDisplayDate(date) {
+  const day = date.getDate().toString().padStart(2, "0");
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
 // ---------- LOAD CALENDAR ----------
 async function loadCalendar(user) {
-  calendar.innerHTML = ""; // clear on re-login
+  calendar.innerHTML = "";
 
   for (let i = 0; i < 14; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    const dayId = formatDate(date);
 
-    const ref = doc(db, "users", user.uid, "dailyLogs", dayId);
+    const firestoreId = formatDate(date); // YYYY-MM-DD
+    const displayDate = formatDisplayDate(date); // DD-MMM-YYYY
+
+    const ref = doc(db, "users", user.uid, "dailyLogs", firestoreId);
     const snap = await getDoc(ref);
 
     const litres = snap.exists() ? snap.data().litres : 0;
@@ -76,7 +88,7 @@ async function loadCalendar(user) {
     div.className = `day ${completed ? "success" : "fail"} ${i === 0 ? "today" : ""}`;
 
     div.innerHTML = `
-      <b>${dayId}</b><br>
+      <b>${displayDate}</b><br>
       ${litres} / ${DAILY_GOAL} L
     `;
 
@@ -84,20 +96,20 @@ async function loadCalendar(user) {
       const controls = document.createElement("div");
       controls.className = "controls";
 
-      controls.innerHTML = `
-        <button id="plus">+</button>
-        <button id="minus">−</button>
-      `;
+      const plusBtn = document.createElement("button");
+      plusBtn.textContent = "+";
+      plusBtn.onclick = () => updateLitres(user, litres + 1);
 
-      controls.querySelector("#plus").onclick = () =>
-        updateLitres(user, litres + 1);
+      const minusBtn = document.createElement("button");
+      minusBtn.textContent = "−";
+      minusBtn.onclick = () => updateLitres(user, litres - 1);
 
-      controls.querySelector("#minus").onclick = () =>
-        updateLitres(user, litres - 1);
-
+      controls.appendChild(plusBtn);
+      controls.appendChild(minusBtn);
       div.appendChild(controls);
     }
 
+    // THIS keeps today on TOP
     calendar.appendChild(div);
   }
 }
