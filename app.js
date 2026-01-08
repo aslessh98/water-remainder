@@ -41,6 +41,9 @@ onAuthStateChanged(auth, user => {
 
     loginBtn.style.display = "none";
     userInfo.style.display = "inline-flex";
+
+    loadCalendar(user);
+    
   } else {
     loginBtn.style.display = "inline-flex";
     userInfo.style.display = "none";
