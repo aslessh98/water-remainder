@@ -4,6 +4,10 @@ function pushStatus(msg) {
 }
 
 let swRegistration = null;
+let swReadyResolve;
+const swReady = new Promise(resolve => {
+  swReadyResolve = resolve;
+});
 
 import {
   GoogleAuthProvider,
@@ -40,6 +44,8 @@ window.addEventListener("firebase-ready", async () => {
         "./firebase-messaging-sw.js"
       );
       pushStatus("Service worker registered");
+      swReadyResolve();
+      pushStatus("Service worker resolved");
     } catch (err) {
       pushStatus("SW registration failed");
       console.error(err);
@@ -49,6 +55,10 @@ window.addEventListener("firebase-ready", async () => {
 
 async function requestNotificationPermission() {
   try {
+    pushStatus("Waiting for service worker...");
+
+    await swReady;
+    
     pushStatus("Requesting permission...");
 
     const permission = await Notification.requestPermission();
