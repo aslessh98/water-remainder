@@ -1,11 +1,11 @@
-self.addEventListener('push', e => {
+/*self.addEventListener('push', e => {
   const data = e.data.json();
   self.registration.showNotification(data.title, {
     body: data.body,
     icon: 'icon-192.png'
   });
 });
-
+*/
 /*
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
