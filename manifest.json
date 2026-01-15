@@ -1,6 +1,6 @@
 {
   "name": "Hydration Calendar",
-  "short_name": "Hydration",
+  "short_name": "Hydration Tracker",
   "description": "Track daily water intake and get fun hydration reminders",
   "start_url": "/water-remainder/",
   "scope": "/water-remainder/",
