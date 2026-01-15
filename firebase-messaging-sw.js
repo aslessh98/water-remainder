@@ -12,6 +12,62 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// Helpful log to debug what arrives (open SW console in Chrome)
+self.addEventListener('push', event => {
+  console.log('[SW] push event:', event);
+});
+
+// Handle Firebase compat background messages (payload from SDK)
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw] onBackgroundMessage payload:', payload);
+
+  // payload may contain .data or .notification or both
+  const data = payload.data || payload.notification || {};
+  const title = data.title || 'Reminder';
+  const options = {
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: data // attach full data for click handling
+  };
+
+  return self.registration.showNotification(title, options);
+});
+
+// Generic push handler that covers data-only / legacy sends
+self.addEventListener('push', (event) => {
+  console.log('[SW] push received, event.data:', event.data);
+
+  let payloadData = {};
+  if (event.data) {
+    try {
+      payloadData = event.data.json();
+    } catch (err) {
+      // Not JSON — fallback to text
+      payloadData = { body: event.data.text() };
+    }
+  }
+
+  // Some senders wrap notification inside `notification` object
+  const notif = payloadData.notification || payloadData || {};
+  const title = notif.title || 'Reminder';
+  const options = {
+    body: notif.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: payloadData
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Optional: handle clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/'));
+});
+
+/*
 messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
@@ -26,7 +82,7 @@ self.addEventListener('push', e => {
     icon: 'icon-192.png'
   });
 });
-
+*/
 /*
 messaging.onBackgroundMessage((payload) => {
   const title = payload.data?.title || "Drink Water 🥤";
