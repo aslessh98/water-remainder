@@ -239,21 +239,18 @@ button {
   color:#ef4444;
 }
 
-/* Floating White Notification Button */
+/* Floating White Notification Button - 75% Size */
 .notification-fab {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 56px;
-  height: 56px;
+  bottom: 22px;        /* Reduced from 30px */
+  right: 22px;         /* Reduced from 30px */
+  width: 42px;         /* 75% of 56px */
+  height: 42px;        /* 75% of 56px */
   border-radius: 50%;
   
-  /* Changed background to white */
   background: #ffffff; 
-  
-  /* Added a subtle border and stronger shadow so it's visible on white */
   border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Slightly tighter shadow */
   
   cursor: pointer;
   display: flex;
@@ -265,23 +262,20 @@ button {
 
 .notification-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
 }
 
 .notification-fab .bell-icon {
-  font-size: 24px;
+  font-size: 18px;      /* Reduced from 24px to fit the smaller circle */
   z-index: 2;
-  /* Optional: filter to make the emoji pop or change color */
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
-/* The "Interesting" Pulse Effect - Adjusted for white theme */
+/* The Pulse Effect - Scaled Down */
 .pulse-ring {
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  /* Changed to a soft blue or grey so it's visible but clean */
   background: #cbd5e1; 
   opacity: 0.4;
   animation: pulse-animation 2s infinite;
@@ -294,7 +288,8 @@ button {
     opacity: 0.4;
   }
   100% {
-    transform: scale(1.8);
+    /* Slightly larger expansion for a smaller starting base */
+    transform: scale(1.9); 
     opacity: 0;
   }
 }
