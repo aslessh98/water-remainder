@@ -209,7 +209,7 @@ button {
 }
 
 /* User name */
-.user-name{
+.user-name, #enablePushBtn {
   font-weight:700;
   font-size:14px;
   color:#0b1220;
