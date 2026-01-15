@@ -12,40 +12,21 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Helpful log to debug what arrives (open SW console in Chrome)
-self.addEventListener('push', event => {
-  console.log('[SW] push event:', event);
-});
+// Handle Firebase compat background messages (payload from SDK)
+messaging.onBackgroundMessage((payload) => {
+  //console.log('[firebase-messaging-sw] onBackgroundMessage payload:', payload);
 
-self.addEventListener('push', (event) => {
-  let payload = {};
-
-  if (event.data) {
-    try {
-      payload = event.data.json();
-    } catch {
-      payload = { body: event.data.text() };
-    }
-  }
-
-  const data = payload.data || payload.notification || payload;
-  const title = data.title || 'Reminder 🥤';
-
+  // payload may contain .data or .notification or both
+  const data = payload.data || payload.notification ;
+  const title = data.title ;
   const options = {
-    body: data.body || '',
+    body: data.body ,
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    data
+    data: data // attach full data for click handling
   };
 
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(clients.openWindow('/'));
+  return self.registration.showNotification(title, options);
 });
 
 /*
@@ -99,4 +80,42 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(clients.openWindow('/'));
 });
 */
+
+/*
+
+// Helpful log to debug what arrives (open SW console in Chrome)
+self.addEventListener('push', event => {
+  console.log('[SW] push event:', event);
+});
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch {
+      payload = { body: event.data.text() };
+    }
+  }
+
+  const data = payload.data || payload.notification || payload;
+  const title = data.title || 'Reminder 🥤';
+
+  const options = {
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/'));
+});*/
 
