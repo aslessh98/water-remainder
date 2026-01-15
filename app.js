@@ -19,11 +19,11 @@ import {
 
 let swRegistration = null;
 
-function pushStatus(msg) {
+/*function pushStatus(msg) {
   //console.log("Push status: " + msg);
   document.getElementById("pushStatus").textContent =
     "Push status: " + msg;
-}
+}*/
 
 // ---------- NOTIFICATION LOGIC ----------
 // 1. Function: Silently check if we should show the button
@@ -31,7 +31,7 @@ async function checkSubscriptionStatus(user) {
   try {
     // A. Check Browser Permission
     if (Notification.permission !== "granted") {
-      pushStatus("Permission not granted yet.");
+      //pushStatus("Permission not granted yet.");
       return false; // Show button
     }
 
@@ -39,7 +39,7 @@ async function checkSubscriptionStatus(user) {
     // We need the registration to get the token
     const registration = await navigator.serviceWorker.getRegistration();
     if (!registration) {
-      pushStatus("No SW registration found.");
+      //pushStatus("No SW registration found.");
       return false; // Show button
     }
 
@@ -50,7 +50,7 @@ async function checkSubscriptionStatus(user) {
     });
 
     if (!token) {
-      pushStatus("No token retrieved.");
+      //pushStatus("No token retrieved.");
       return false; // Show button
     }
 
@@ -59,16 +59,16 @@ async function checkSubscriptionStatus(user) {
     const tokenSnap = await getDoc(tokenRef);
 
     if (tokenSnap.exists()) {
-      pushStatus("Token exists in DB. Hiding button.");
+      //pushStatus("Token exists in DB. Hiding button.");
       return true; // HIDE button (Already subscribed)
     } else {
-      pushStatus("Token missing from DB.");
+      //pushStatus("Token missing from DB.");
       return false; // Show button (Need to save token)
     }
 
   } catch (err) {
     console.error("Error checking subscription:", err);
-    pushStatus("Error checking subscription:", err);
+    //pushStatus("Error checking subscription:", err);
     return false; // Show button if unsure
   }
 }
@@ -77,14 +77,14 @@ async function requestNotificationPermission() {
   try {
     //pushStatus("Waiting for service worker...");
 
-    pushStatus("Requesting permission... Checking if Service worker in navigator");
+    //pushStatus("Requesting permission... Checking if Service worker in navigator");
     if ("serviceWorker" in navigator) {
       
-      pushStatus("serviceWorker in navigator");
+      //pushStatus("serviceWorker in navigator");
       
       try {
         
-        pushStatus("Service worker registeration started");
+        //pushStatus("Service worker registeration started");
         
         swRegistration = await navigator.serviceWorker.register(
           "./firebase-messaging-sw.js",
@@ -94,11 +94,11 @@ async function requestNotificationPermission() {
   
         );
         
-        pushStatus("Service worker registered");
+        //pushStatus("Service worker registered");
         
       } catch (err) {
         
-        pushStatus("SW registration failed");
+        //pushStatus("SW registration failed");
         
         console.error(err);
       }
@@ -107,20 +107,20 @@ async function requestNotificationPermission() {
     //const readyRegistration = await navigator.serviceWorker.ready;
     //swRegistration = readyRegistration;
     
-    pushStatus("Service worker active");
+    //pushStatus("Service worker active");
     
-    pushStatus("Requesting permission...");
+    //pushStatus("Requesting permission...");
 
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      pushStatus("Permission denied");
+      //pushStatus("Permission denied");
       return;
     }
 
-    pushStatus("Permission granted");
+    //pushStatus("Permission granted");
 
     /*if (!swRegistration) {
-      pushStatus("ERROR: Service worker not ready");
+      //pushStatus("ERROR: Service worker not ready");
       return;
     }*/
 
@@ -130,11 +130,11 @@ async function requestNotificationPermission() {
     });
 
     if (!token) {
-      pushStatus("Token NOT generated");
+      //pushStatus("Token NOT generated");
       return;
     }
 
-    pushStatus("Token generated");
+    //pushStatus("Token generated");
     const tokenRef = doc(db, "users", auth.currentUser.uid, "fcmTokens", token);
     await setDoc(tokenRef, {
       token,
@@ -142,12 +142,12 @@ async function requestNotificationPermission() {
       userAgent: navigator.userAgent
     });
 
-    pushStatus("Token saved to Firestore");
+    //pushStatus("Token saved to Firestore");
 
     document.getElementById("enablePushBtn").style.display = "none";
 
   } catch (err) {
-    pushStatus("ERROR: " + err.message);
+    //pushStatus("ERROR: " + err.message);
   }
 }
 
