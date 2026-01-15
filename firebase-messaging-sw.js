@@ -17,6 +17,38 @@ self.addEventListener('push', event => {
   console.log('[SW] push event:', event);
 });
 
+self.addEventListener('push', (event) => {
+  let payload = {};
+
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch {
+      payload = { body: event.data.text() };
+    }
+  }
+
+  const data = payload.data || payload.notification || payload;
+  const title = data.title || 'Reminder 🥤';
+
+  const options = {
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/'));
+});
+
+/*
 // Handle Firebase compat background messages (payload from SDK)
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw] onBackgroundMessage payload:', payload);
@@ -66,32 +98,5 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(clients.openWindow('/'));
 });
-
-/*
-messaging.onBackgroundMessage((payload) => {
-  self.registration.showNotification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "./icon-192.png"
-  });
-});
-
-self.addEventListener('push', e => {
-  const data = e.data.json();
-  self.registration.showNotification(data.title, {
-    body: data.body,
-    icon: 'icon-192.png'
-  });
-});
 */
-/*
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.data?.title || "Drink Water 🥤";
-  const options = {
-    body: payload.data?.body || "Hydration check!",
-    icon: "/icon-192.png",
-    badge: "/icon-192.png"
-  };
 
-  self.registration.showNotification(title, options);
-});
-*/
