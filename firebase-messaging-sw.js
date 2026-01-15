@@ -11,14 +11,14 @@ firebase.initializeApp({
 
 
 const messaging = firebase.messaging();
-/*
+
 messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
     icon: "./icon-192.png"
   });
 });
-*/
+/*
 messaging.onBackgroundMessage((payload) => {
   const title = payload.data?.title || "Drink Water 🥤";
   const options = {
@@ -29,4 +29,4 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(title, options);
 });
-
+*/
