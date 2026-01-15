@@ -12,22 +12,34 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Handle Firebase compat background messages (payload from SDK)
-messaging.onBackgroundMessage((payload) => {
-  //console.log('[firebase-messaging-sw] onBackgroundMessage payload:', payload);
+// Generic push handler that covers data-only / legacy sends
+self.addEventListener('push', (event) => {
+  console.log('[SW] push received, event.data:', event.data);
 
-  // payload may contain .data or .notification or both
-  const data = payload.data || payload.notification ;
-  const title = data.title ;
+  let payloadData = {};
+  if (event.data) {
+    try {
+      payloadData = event.data.json();
+    } catch (err) {
+      // Not JSON — fallback to text
+      payloadData = { body: event.data.text() };
+    }
+  }
+
+  // Some senders wrap notification inside `notification` object
+  const notif = payloadData.notification || payloadData || {};
+  const title = notif.title || 'Reminder';
   const options = {
-    body: data.body ,
+    body: notif.body || '',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    data: data // attach full data for click handling
+    data: payloadData
   };
 
-  return self.registration.showNotification(title, options);
+  event.waitUntil(self.registration.showNotification(title, options));
 });
+
+
 
 /*
 // Handle Firebase compat background messages (payload from SDK)
@@ -117,5 +129,6 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(clients.openWindow('/'));
-});*/
+});
+*/
 
